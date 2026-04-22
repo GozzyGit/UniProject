@@ -1,0 +1,15 @@
+id,label,area,next
+1,Change Control,,2
+2,Bicep,,3
+3,Code Testing,,4
+4,Github,,5
+5,Build,,6
+6,Live,,7
+7,Test,,8
+8,Monitor,,9
+9,Alert,,10
+10,Compliance,,11
+11,Blueprint,,12
+12,Approval,,13
+13,Failure,,14
+14,Success,,15

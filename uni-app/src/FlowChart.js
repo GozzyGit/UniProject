@@ -110,7 +110,7 @@ export default function FlowChart() {
         setEdges(tempEdges);
       },
     });
-  }, []);
+  }, [setNodes, setEdges]);  // Added dependencies to the effect
 
   /* ---------------- OVERVIEW / SUMMARY ---------------- */
   useEffect(() => {

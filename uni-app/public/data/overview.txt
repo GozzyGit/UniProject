@@ -1,0 +1,3 @@
+The application models a complete delivery lifecycle, from change control and code development through CI/CD pipelines, infrastructure provisioning, deployment, and observability. It includes both cloud and on-prem components, showing how systems integrate across hybrid environments using Azure services.
+
+The flow is data-driven, meaning the entire diagram is generated from a CSV file that defines nodes, relationships, and process metadata.

@@ -1,0 +1,5 @@
+This project was created using an AI-assisted development approach. I used AI tools to help generate and iterate parts of the implementation, including the React Flow visualization logic, guided navigation features, and improvements to the overall architecture and data modeling.
+
+However, the design decisions, system structure, and integration of DevOps concepts (such as Azure Arc, CI/CD pipelines, and observability layers) were directed and refined by me. I defined the workflow structure using a CSV-driven model and iteratively shaped how the system behaves, including branching logic, success/failure flows, and the interactive guided mode.
+
+The AI was used as a productivity and prototyping tool to accelerate implementation, but the overall architecture, intent, and validation of the DevOps model were my responsibility.

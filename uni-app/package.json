@@ -1,7 +1,6 @@
 {
   "name": "uni-app",
   "version": "0.1.0",
-  "homepage": "/UniProject",
   "private": true,
   "dependencies": {
     "@testing-library/dom": "^10.4.1",

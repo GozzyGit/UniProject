@@ -12,7 +12,7 @@ import "reactflow/dist/style.css";
 
 const STORAGE_KEY = "azure-flow-layout";
 
-/* ---------------- COLORS ---------------- */
+// Colors for node types
 const typeColors = {
   process: "#3b82f6",
   devops: "#8b5cf6",
@@ -24,7 +24,7 @@ const GREEN = "#16a34a";
 const RED = "#dc2626";
 const GREY = "#6b7280";
 
-/* ---------------- NODE ---------------- */
+// Create node from CSV data
 const makeNode = (row, saved) => ({
   id: String(row.id),
   position: saved[row.id] || {
@@ -50,21 +50,16 @@ const makeNode = (row, saved) => ({
 
 export default function FlowChart() {
   const [view, setView] = useState("flow");
-
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-
   const [nodeMap, setNodeMap] = useState({});
   const [selectedNode, setSelectedNode] = useState(null);
-
   const [guided, setGuided] = useState(false);
   const [current, setCurrent] = useState("1");
-
   const [text, setText] = useState("");
-
   const isMobile = window.innerWidth < 768;
 
-  /* ---------------- LOAD DATA ---------------- */
+  // Load CSV data for nodes and edges
   useEffect(() => {
     Papa.parse("/data/data.csv", {
       download: true,
@@ -72,7 +67,6 @@ export default function FlowChart() {
       skipEmptyLines: true,
       complete: (res) => {
         const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
-
         const tempNodes = [];
         const tempEdges = [];
         const map = {};
@@ -110,9 +104,9 @@ export default function FlowChart() {
         setEdges(tempEdges);
       },
     });
-  }, [setNodes, setEdges]);  // Added dependencies to the effect
+  }, [setNodes, setEdges]);
 
-  /* ---------------- OVERVIEW / SUMMARY ---------------- */
+  // Load text data (overview/summary)
   useEffect(() => {
     if (view === "overview") {
       fetch("/data/overview.txt").then(r => r.text()).then(setText);
@@ -122,13 +116,12 @@ export default function FlowChart() {
     }
   }, [view]);
 
-  /* ---------------- CLICK ---------------- */
   const onNodeClick = (_, node) => {
     if (guided) return;
     setSelectedNode(node.data);
   };
 
-  /* ---------------- GUIDED ---------------- */
+  // Start and Exit Guided Mode
   const startGuided = (id = "1") => {
     setGuided(true);
     setCurrent(id);
@@ -150,43 +143,34 @@ export default function FlowChart() {
 
   const active = nodeMap[current];
 
-  /* ---------------- UI ---------------- */
+  // Render Flowchart
   return (
     <div style={{ display: "flex", height: "100vh" }}>
-
-      {/* SIDEBAR */}
-      <div style={{
-        width: 220,
-        padding: 12,
-        borderRight: "1px solid #e5e7eb",
-        background: "#fafafa"
-      }}>
+      {/* Sidebar */}
+      <div
+        style={{
+          width: 220,
+          padding: 12,
+          borderRight: "1px solid #e5e7eb",
+          background: "#fafafa",
+        }}
+      >
         <h3>Navigation</h3>
-
         <button onClick={() => setView("flow")}>Flowchart</button>
-        <br /><br />
+        <br />
+        <br />
         <button onClick={() => setView("overview")}>Overview</button>
-        <br /><br />
+        <br />
+        <br />
         <button onClick={() => setView("summary")}>Summary</button>
       </div>
 
-      {/* MAIN */}
+      {/* Main */}
       <div style={{ flex: 1, position: "relative" }}>
-
         {view === "flow" && (
           <ReactFlowProvider>
             <ReactFlow
-              nodes={nodes.map(n => ({
-                ...n,
-                style: {
-                  ...n.style,
-                  opacity: guided ? (current === n.id ? 1 : 0.25) : 1,
-                  border:
-                    guided && current === n.id
-                      ? "2px solid #2563eb"
-                      : n.style.border,
-                },
-              }))}
+              nodes={nodes}
               edges={edges}
               onNodesChange={onNodesChange}
               onEdgesChange={onEdgesChange}
@@ -199,17 +183,13 @@ export default function FlowChart() {
               {/* GUIDED BUTTON */}
               <div style={{ position: "absolute", top: 10, left: 10, zIndex: 10 }}>
                 {!guided ? (
-                  <button onClick={() => startGuided("1")}>
-                    Start Guided Mode
-                  </button>
+                  <button onClick={() => startGuided("1")}>Start Guided Mode</button>
                 ) : (
-                  <button onClick={exitGuided}>
-                    Exit Guided Mode
-                  </button>
+                  <button onClick={exitGuided}>Exit Guided Mode</button>
                 )}
               </div>
 
-              {/* GUIDED PANEL (MOVED UP 20%) */}
+              {/* GUIDED PANEL */}
               {guided && active && (
                 <div
                   style={{
@@ -218,7 +198,6 @@ export default function FlowChart() {
                     left: isMobile ? 10 : 20,
                     right: isMobile ? 10 : "auto",
                     width: isMobile ? "calc(100% - 20px)" : 280,
-
                     background: "#fff",
                     padding: 12,
                     borderRadius: 10,
@@ -259,7 +238,7 @@ export default function FlowChart() {
           </ReactFlowProvider>
         )}
 
-        {/* OVERVIEW / SUMMARY */}
+        {/* Overview or Summary */}
         {(view === "overview" || view === "summary") && (
           <div style={{ padding: 20 }}>
             <h2>{view}</h2>
@@ -267,24 +246,25 @@ export default function FlowChart() {
           </div>
         )}
 
-        {/* NODE DETAILS */}
+        {/* Node Details */}
         {selectedNode && !guided && (
-          <div style={{
-            position: "absolute",
-            right: 20,
-            top: 60,
-            width: 320,
-            background: "#fff",
-            padding: 16,
-            borderRadius: 10,
-            boxShadow: "0 10px 25px rgba(0,0,0,0.15)",
-          }}>
+          <div
+            style={{
+              position: "absolute",
+              right: 20,
+              top: 60,
+              width: 320,
+              background: "#fff",
+              padding: 16,
+              borderRadius: 10,
+              boxShadow: "0 10px 25px rgba(0,0,0,0.15)",
+            }}
+          >
             <h3>{selectedNode.label}</h3>
             <p>{selectedNode.desc}</p>
             <button onClick={() => setSelectedNode(null)}>Close</button>
           </div>
         )}
-
       </div>
     </div>
   );

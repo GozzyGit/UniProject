@@ -40,6 +40,16 @@ const customButtonStyle = {
   marginBottom: "10px",
 };
 
+// Node Description Styling
+const descriptionStyle = {
+  fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",  // Professional font
+  fontSize: "14px",  // Slightly smaller text size for better readability
+  lineHeight: "1.6",  // Increase line height for better readability
+  color: "#333",  // Dark color for better contrast
+  marginTop: "10px",  // Add space between label and description
+  maxWidth: "700px",  // Limit the width for a better text block
+};
+
 // Map each node type to an icon
 const getNodeIcon = (type) => {
   const iconStyle = { fontSize: "24px", marginRight: "10px" };  // Adjust the font size here
@@ -92,7 +102,7 @@ const makeNode = (row, saved, highlightedNodeId, guided, current) => ({
 });
 
 export default function FlowChart() {
-  const [view, setView] = useState("flow");
+  const [view, setView] = useState("flow");  // Initialize the view state
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [nodeMap, setNodeMap] = useState({});
@@ -101,7 +111,6 @@ export default function FlowChart() {
   const [guided, setGuided] = useState(false);
   const [current, setCurrent] = useState("1");
   const [text, setText] = useState("");
-  const isMobile = window.innerWidth < 768;
 
   // Load CSV data for nodes and edges
   useEffect(() => {
@@ -207,19 +216,31 @@ export default function FlowChart() {
         }}
       >
         <h2 style={{ fontSize: "20px", marginBottom: "20px" }}>Azure Flow</h2>
-        <button onClick={() => setView("flow")} style={customButtonStyle}>Flowchart</button>
-        {/* Start or Exit Guided Mode Button nested under Flowchart button */}
-        {view === "flow" && (
-          <div style={{ marginTop: "10px", marginBottom: "20px" }}>
-            {!guided ? (
-              <button onClick={() => startGuided("1")} style={customButtonStyle}>Start Guided Mode</button>
-            ) : (
-              <button onClick={exitGuided} style={customButtonStyle}>Exit Guided Mode</button>
-            )}
-          </div>
+
+        {/* Flowchart Buttons */}
+        <button onClick={() => setView("flow")} style={customButtonStyle}>
+          Flowchart
+        </button>
+        <button onClick={() => setView("overview")} style={customButtonStyle}>
+          Overview
+        </button>
+        <button onClick={() => setView("summary")} style={customButtonStyle}>
+          Summary
+        </button>
+
+        {/* Guided Mode Button */}
+        {!guided && (
+          <button onClick={() => startGuided()} style={customButtonStyle}>
+            Start Guided Mode
+          </button>
         )}
-        <button onClick={() => setView("overview")} style={customButtonStyle}>Overview</button>
-        <button onClick={() => setView("summary")} style={customButtonStyle}>Summary</button>
+
+        {/* Exit Guided Mode Button */}
+        {guided && (
+          <button onClick={exitGuided} style={customButtonStyle}>
+            Exit Guided Mode
+          </button>
+        )}
       </div>
 
       {/* Main content */}
@@ -236,61 +257,79 @@ export default function FlowChart() {
             >
               <Background />
               <Controls />
-
-              {/* GUIDED PANEL */}
-              {guided && active && (
-                <div
-                  style={{
-                    position: "absolute",
-                    top: "80px",  // Position below Flowchart button
-                    left: "20px",  // Keep it left-aligned
-                    background: "#fff",
-                    padding: "20px",
-                    borderRadius: "10px",
-                    boxShadow: "0 10px 25px rgba(0,0,0,0.15)",
-                    zIndex: 20,
-                  }}
-                >
-                  <b>{active.label}</b>
-                  <p style={{ fontSize: 12 }}>{active.desc}</p>
-
-                  {/* Show choices only if there are multiple next options */}
-                  {active.next && active.next.split(";").length > 1 && 
-                    active.next.split(";").map((choice) => {
-                      // Exclude Grafana node (ID 22) if current node is Defender for Cloud (ID 15)
-                      if (current === "15" && choice === "22") {
-                        return null; // Don't render the button for Grafana
-                      }
-                      // Exclude Next button for GitHub node (ID 14)
-                      if (current === "14") {
-                        return null; // Don't render the button for GitHub
-                      }
-                      return (
-                        <button
-                          key={choice}
-                          onClick={() => choose(choice)}
-                          style={customButtonStyle}
-                        >
-                          Go to {nodeMap[choice]?.label || choice}
-                        </button>
-                      );
-                    })}
-
-                  {/* Remove Next button for specific nodes */}
-                  {current !== "15" && current !== "14" && (
-                    <button onClick={next} style={customButtonStyle}>Next →</button>
-                  )}
-                </div>
-              )}
             </ReactFlow>
           </ReactFlowProvider>
         )}
 
+        {/* Guided Flowchart Panel */}
+        {guided && active && (
+          <div
+            style={{
+              position: "absolute",
+              bottom: "20%",
+              left: "20px",
+              background: "#fff",
+              padding: "20px",
+              borderRadius: "10px",
+              boxShadow: "0 10px 25px rgba(0,0,0,0.15)",
+              zIndex: 20,
+            }}
+          >
+            <b>{active.label}</b>
+            <p style={descriptionStyle}>{active.desc}</p>
+
+            {/* Show choices only if there are multiple next options */}
+            {active.next && active.next.split(";").length > 1 &&
+              active.next.split(";").map((choice) => {
+                if (current === "15" && choice === "22") return null; // Exclude Grafana
+                return (
+                  <button
+                    key={choice}
+                    onClick={() => choose(choice)}
+                    style={customButtonStyle}
+                  >
+                    Go to {nodeMap[choice]?.label || choice}
+                  </button>
+                );
+              })}
+
+            {/* Remove "Next" Button from Defender for Cloud Node */}
+            {active.label.toLowerCase() !== "defender for cloud" && !["github", "bicep build", "ansible build"].includes(active.label.toLowerCase()) && (
+              <button onClick={next} style={customButtonStyle}>Next →</button>
+            )}
+
+            {/* Exit Guided Mode Button */}
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              <button onClick={exitGuided} style={customButtonStyle}>
+                Exit Guided Mode
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Overview or Summary */}
         {(view === "overview" || view === "summary") && (
-          <div style={{ padding: 20 }}>
-            <h2>{view}</h2>
-            <pre>{text}</pre>
+          <div style={{
+            padding: "30px",
+            backgroundColor: "#fff",
+            borderRadius: "8px",
+            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+            maxWidth: "1200px",
+            margin: "0 auto",
+            marginTop: "20px",
+            color: "#333",
+            fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+          }}>
+            <h2 style={{
+              fontSize: "30px", fontWeight: "600", color: "#1e3a8a", marginBottom: "20px",
+            }}>
+              {view === "overview" ? "Overview" : "Summary"}
+            </h2>
+            <pre style={{
+              whiteSpace: "pre-wrap", wordWrap: "break-word", fontSize: "16px", lineHeight: "1.6",
+            }}>
+              {text}
+            </pre>
           </div>
         )}
 

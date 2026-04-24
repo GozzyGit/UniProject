@@ -43,7 +43,7 @@ const customButtonStyle = {
 // Node Description Styling
 const descriptionStyle = {
   fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",  // Professional font
-  fontSize: "14px",  // Slightly smaller text size for better readability
+  fontSize: "16px",  // Slightly smaller text size for better readability
   lineHeight: "1.6",  // Increase line height for better readability
   color: "#333",  // Dark color for better contrast
   marginTop: "10px",  // Add space between label and description
@@ -52,16 +52,16 @@ const descriptionStyle = {
 
 // Map each node type to an icon
 const getNodeIcon = (type) => {
-  const iconStyle = { fontSize: "24px", marginRight: "10px" };  // Adjust the font size here
+  const iconStyle = { fontSize: "30px", marginRight: "10px" };  // Adjust the font size here
   switch (type) {
     case "process":
-      return <FaTools style={{ ...iconStyle, color: "#3b82f6" }} />;
+      return <FaTools style={{ ...iconStyle, color: typeColors.process }} />;
     case "devops":
-      return <MdSettingsInputComponent style={{ ...iconStyle, color: "#8b5cf6" }} />;
+      return <MdSettingsInputComponent style={{ ...iconStyle, color: typeColors.devops }} />;
     case "observability":
-      return <IoMdAnalytics style={{ ...iconStyle, color: "#f59e0b" }} />;
+      return <IoMdAnalytics style={{ ...iconStyle, color: typeColors.observability }} />;
     default:
-      return <FaCloud style={{ ...iconStyle, color: "#6b7280" }} />;
+      return <FaCloud style={{ ...iconStyle, color: typeColors.default }} />;
   }
 };
 
@@ -71,6 +71,21 @@ const NodeLabel = ({ icon, label }) => (
     <div>{label}</div>
   </div>
 );
+
+// Dynamic text color based on node type
+const getTextColor = (type) => {
+  // Set text color based on the node's background color type
+  switch (type) {
+    case "process":
+      return "#333"; // Dark text for light backgrounds
+    case "devops":
+      return "#050505"; // White text for dark backgrounds
+    case "observability":
+      return "#333"; // Dark text for light backgrounds
+    default:
+      return "#333"; // Default dark text
+  }
+};
 
 // Create node from CSV data
 const makeNode = (row, saved, highlightedNodeId, guided, current) => ({
@@ -86,11 +101,11 @@ const makeNode = (row, saved, highlightedNodeId, guided, current) => ({
     width: 250,
     padding: 20,
     borderRadius: 12,
-    background: typeColors[row.type] || typeColors.default,  // Set background color based on node type
-    border: `2px solid ${highlightedNodeId === row.id || (guided && current === row.id) ? "#00aaff" : typeColors[row.type] || typeColors.default}`,
-    fontSize: 14,
+    // Removed the background color here
+    border: `4px solid ${highlightedNodeId === row.id || (guided && current === row.id) ? "#00aaff" : typeColors[row.type] || typeColors.default}`,
+    fontSize: 16,
     fontWeight: "500",
-    color: "white",  // Set text color to white
+    color: getTextColor(row.type), // Dynamic text color based on node type
     cursor: "pointer",
     boxShadow: highlightedNodeId === row.id || (guided && current === row.id)
       ? "0 6px 12px rgba(0, 170, 255, 0.3)"  // Highlighted nodes

@@ -3,7 +3,7 @@ id,label,type,next,desc,
 2,Approval,process,3,Gate that approves changes before production release
 3,Code Change,devops,4,Defines infra and config changes using Bicep and Ansible with DEV/PROD parameters
 4,Code Testing,devops,5,Validates changes before deployment
-5,GitHub or AzureDevops,devops,6;7,Version control system for storing code and files
+5,GitHub/AzureDevops,devops,6;7,Version control system for storing code and files
 6,Bicep Build,bicep,8;9,CI workflow that builds and deploys Bicep from main branch
 7,Ansible Build,ansible,8;9,CI workflow that runs Ansible from main branch updates
 8,Azure Cloud Resources,azure cloud,12,Azure-hosted infrastructure resources

@@ -336,26 +336,34 @@ export default function FlowChart() {
         {/* Overview or Summary */}
         {(view === "overview" || view === "summary") && (
           <div style={{
-            padding: "30px",
-            backgroundColor: "#fff",
-            borderRadius: "8px",
-            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
-            maxWidth: "1200px",
+            padding: "40px",
+            backgroundColor: "#f9fafb", // Light grey background for better contrast
+            borderRadius: "12px",
+            boxShadow: "0 6px 20px rgba(0, 0, 0, 0.1)",
+            maxWidth: "1000px", // Limit the width for a cleaner layout
             margin: "0 auto",
-            marginTop: "20px",
+            marginTop: "30px", // Add space from the top
             color: "#333",
-            fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+            fontFamily: "'Roboto', sans-serif", // Cleaner font for professional look
+            lineHeight: "1.7", // Increased line-height for better readability
           }}>
             <h2 style={{
-              fontSize: "30px", fontWeight: "600", color: "#1e3a8a", marginBottom: "20px",
+              fontSize: "32px", 
+              fontWeight: "700", // Bold header
+              color: "#1e3a8a", // Azure blue for header text
+              marginBottom: "20px", // Add space below the heading
             }}>
               {view === "overview" ? "Overview" : "Summary"}
             </h2>
-            <pre style={{
-              whiteSpace: "pre-wrap", wordWrap: "break-word", fontSize: "16px", lineHeight: "1.6",
+            <p style={{
+              fontSize: "16px", 
+              fontWeight: "400", 
+              color: "#4b5563",  // Darker grey for text
+              whiteSpace: "pre-wrap", 
+              wordWrap: "break-word",
             }}>
               {text}
-            </pre>
+            </p>
           </div>
         )}
 

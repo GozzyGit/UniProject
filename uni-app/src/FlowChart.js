@@ -9,9 +9,9 @@ import ReactFlow, {
   useEdgesState,
 } from "reactflow";
 import "reactflow/dist/style.css";
-import { FaTools, FaCloud } from "react-icons/fa"; // Example colorful icons
+import { FaTools, FaCloud } from "react-icons/fa";
 import { IoMdAnalytics } from "react-icons/io";
-import { MdSettingsInputComponent } from "react-icons/md"; // For DevOps type
+import { MdSettingsInputComponent } from "react-icons/md";
 
 // Constants and Styles
 const STORAGE_KEY = "azure-flow-layout";
@@ -19,17 +19,15 @@ const GREEN = "#16a34a";
 const RED = "#dc2626";
 const GREY = "#6b7280";
 
-// Colors for node types
 const typeColors = {
-  process: "#3b82f6", // Azure blue for process
-  devops: "#8b5cf6",  // Purple for DevOps
-  observability: "#f59e0b", // Yellow for Observability
-  default: "#6b7280",  // Grey for default
+  process: "#3b82f6",
+  devops: "#8b5cf6",
+  observability: "#f59e0b",
+  default: "#6b7280",
 };
 
-// Styling for the custom button
 const customButtonStyle = {
-  backgroundColor: "#0078d4", // Azure Blue
+  backgroundColor: "#0078d4",
   color: "white",
   border: "none",
   padding: "12px 24px",
@@ -40,19 +38,17 @@ const customButtonStyle = {
   marginBottom: "10px",
 };
 
-// Node Description Styling
 const descriptionStyle = {
-  fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",  // Professional font
-  fontSize: "16px",  // Slightly smaller text size for better readability
-  lineHeight: "1.6",  // Increase line height for better readability
-  color: "#333",  // Dark color for better contrast
-  marginTop: "10px",  // Add space between label and description
-  maxWidth: "700px",  // Limit the width for a better text block
+  fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+  fontSize: "16px",
+  lineHeight: "1.6",
+  color: "#333",
+  marginTop: "10px",
+  maxWidth: "700px",
 };
 
-// Map each node type to an icon
 const getNodeIcon = (type) => {
-  const iconStyle = { fontSize: "30px", marginRight: "10px" };  // Adjust the font size here
+  const iconStyle = { fontSize: "30px", marginRight: "10px" };
   switch (type) {
     case "process":
       return <FaTools style={{ ...iconStyle, color: typeColors.process }} />;
@@ -72,25 +68,22 @@ const NodeLabel = ({ icon, label }) => (
   </div>
 );
 
-// Dynamic text color based on node type
 const getTextColor = (type) => {
-  // Set text color based on the node's background color type
   switch (type) {
     case "process":
-      return "#333"; // Dark text for light backgrounds
+      return "#333";
     case "devops":
-      return "#050505"; // White text for dark backgrounds
+      return "#050505";
     case "observability":
-      return "#333"; // Dark text for light backgrounds
+      return "#333";
     default:
-      return "#333"; // Default dark text
+      return "#333";
   }
 };
 
-// Create node from CSV data
 const makeNode = (row, saved, highlightedNodeId, guided, current) => ({
   id: String(row.id),
-  position: saved[row.id] || { x: Math.random() * 600, y: Math.random() * 400 },  // Maintain saved position or generate random
+  position: saved[row.id] || { x: Math.random() * 600, y: Math.random() * 400 },
   data: {
     label: <NodeLabel icon={getNodeIcon(row.type)} label={row.label} />,
     desc: row.desc,
@@ -101,37 +94,34 @@ const makeNode = (row, saved, highlightedNodeId, guided, current) => ({
     width: 250,
     padding: 20,
     borderRadius: 12,
-    // Removed the background color here
     border: `4px solid ${highlightedNodeId === row.id || (guided && current === row.id) ? "#00aaff" : typeColors[row.type] || typeColors.default}`,
     fontSize: 16,
     fontWeight: "500",
-    color: getTextColor(row.type), // Dynamic text color based on node type
+    color: getTextColor(row.type),
     cursor: "pointer",
     boxShadow: highlightedNodeId === row.id || (guided && current === row.id)
-      ? "0 6px 12px rgba(0, 170, 255, 0.3)"  // Highlighted nodes
-      : "0 3px 6px rgba(0, 0, 0, 0.1)",  // Normal nodes
-    opacity: !guided || highlightedNodeId === row.id || (guided && current === row.id) ? 1 : 0.4,  // Reduce opacity of non-guided nodes
-    transition: "all 0.3s ease",  // Smooth transition for hover/active state
+      ? "0 6px 12px rgba(0, 170, 255, 0.3)"
+      : "0 3px 6px rgba(0, 0, 0, 0.1)",
+    opacity: !guided || highlightedNodeId === row.id || (guided && current === row.id) ? 1 : 0.4,
+    transition: "all 0.3s ease",
   },
-  draggable: true,  // Allow dragging for better flow manipulation
+  draggable: true,
 });
 
 export default function FlowChart() {
-  const [view, setView] = useState("flow");  // Initialize the view state
+  const [view, setView] = useState("flow");
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [nodeMap, setNodeMap] = useState({});
   const [selectedNode, setSelectedNode] = useState(null);
-  const [highlightedNodeId, setHighlightedNodeId] = useState(null); // Track highlighted node
+  const [highlightedNodeId, setHighlightedNodeId] = useState(null);
   const [guided, setGuided] = useState(false);
   const [current, setCurrent] = useState("1");
   const [text, setText] = useState("");
 
-  // Ref to the guided popup
   const popupRef = useRef(null);
 
-  // Base URL for assets (adjust for deployment environment)
-  const baseUrl = process.env.PUBLIC_URL || '/UniProject'; // Use '/UniProject' for GitHub Pages
+  const baseUrl = process.env.PUBLIC_URL || '/UniProject';
 
   // Load CSV data for nodes and edges
   useEffect(() => {
@@ -178,7 +168,7 @@ export default function FlowChart() {
         setEdges(tempEdges);
       },
     });
-  }, [setNodes, setEdges, highlightedNodeId, guided, current]);
+  }, [baseUrl, highlightedNodeId, guided, current, setNodes, setEdges]);
 
   // Load text data (overview/summary)
   useEffect(() => {
@@ -190,12 +180,12 @@ export default function FlowChart() {
       .catch((error) => {
         console.error("Error fetching text file:", error);
       });
-  }, [view]);
+  }, [view, baseUrl]);
 
   const onNodeClick = (_, node) => {
     if (guided) return;
     setSelectedNode(node.data);
-    setHighlightedNodeId(node.id);  // Highlight the clicked node
+    setHighlightedNodeId(node.id);
   };
 
   // Start and Exit Guided Mode
@@ -224,40 +214,33 @@ export default function FlowChart() {
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (popupRef.current && !popupRef.current.contains(event.target)) {
-        exitGuided(); // Exit guided mode if clicked outside
+        exitGuided();
       }
     };
 
-    // Add event listener for clicks outside the popup
     document.addEventListener("mousedown", handleClickOutside);
 
-    // Clean up the event listener on component unmount
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
-  // Render Flowchart
   return (
     <div style={{ display: "flex", height: "100vh" }}>
       {/* Sidebar */}
-      <div
-        style={{
-          width: 250,
-          padding: "20px 15px",
-          backgroundColor: "#1e3a8a", // Azure blue background
-          color: "#fff", // White text
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "flex-start",
-          height: "100vh",
-          boxShadow: "2px 0px 10px rgba(0, 0, 0, 0.1)", // Subtle shadow for depth
-          position: "fixed",
-        }}
-      >
+      <div style={{
+        width: 250,
+        padding: "20px 15px",
+        backgroundColor: "#1e3a8a",
+        color: "#fff",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "flex-start",
+        height: "100vh",
+        boxShadow: "2px 0px 10px rgba(0, 0, 0, 0.1)",
+        position: "fixed",
+      }}>
         <h2 style={{ fontSize: "20px", marginBottom: "20px" }}>Azure Flow</h2>
-
-        {/* Flowchart Buttons */}
         <button onClick={() => setView("overview")} style={customButtonStyle}>
           Overview
         </button>
@@ -265,19 +248,16 @@ export default function FlowChart() {
           Flowchart
         </button>
 
-        {/* Show "Start Guided Mode" Button only when Flowchart view is active and Guided Mode is not active */}
         {view === "flow" && !guided && (
           <button onClick={() => startGuided()} style={customButtonStyle}>
             Start Guided Mode
           </button>
         )}
 
-        {/* Show "Summary" Button */}
         <button onClick={() => setView("summary")} style={customButtonStyle}>
           Summary
         </button>
 
-        {/* Exit Guided Mode Button */}
         {guided && (
           <button onClick={exitGuided} style={customButtonStyle}>
             Exit Guided Mode
@@ -303,7 +283,6 @@ export default function FlowChart() {
           </ReactFlowProvider>
         )}
 
-        {/* Guided Flowchart Panel */}
         {guided && active && (
           <div
             ref={popupRef}
@@ -320,11 +299,9 @@ export default function FlowChart() {
           >
             <b>{active.label}</b>
             <p style={descriptionStyle}>{active.desc}</p>
-
-            {/* Show choices only if there are multiple next options */}
             {active.next && active.next.split(";").length > 1 &&
               active.next.split(";").map((choice) => {
-                if (current === "15" && choice === "22") return null; // Exclude Grafana
+                if (current === "15" && choice === "22") return null;
                 return (
                   <button
                     key={choice}
@@ -335,15 +312,11 @@ export default function FlowChart() {
                   </button>
                 );
               })}
-
-            {/* Remove the "Next" button for nodes 5, 6, 7, and 15 */}
             {active.id !== "5" && active.id !== "6" && active.id !== "7" && active.id !== "15" && (
               <button onClick={next} style={customButtonStyle}>
                 Next →
               </button>
             )}
-
-            {/* Exit Guided Mode Button */}
             <div style={{ display: "flex", flexDirection: "column" }}>
               <button onClick={exitGuided} style={customButtonStyle}>
                 Exit Guided Mode
@@ -352,33 +325,32 @@ export default function FlowChart() {
           </div>
         )}
 
-        {/* Overview or Summary */}
         {(view === "overview" || view === "summary") && (
           <div style={{
             padding: "40px",
-            backgroundColor: "#f9fafb", // Light grey background for better contrast
+            backgroundColor: "#f9fafb",
             borderRadius: "12px",
             boxShadow: "0 6px 20px rgba(0, 0, 0, 0.1)",
-            maxWidth: "1000px", // Limit the width for a cleaner layout
+            maxWidth: "1000px",
             margin: "0 auto",
-            marginTop: "30px", // Add space from the top
+            marginTop: "30px",
             color: "#333",
-            fontFamily: "'Roboto', sans-serif", // Cleaner font for professional look
-            lineHeight: "1.7", // Increased line-height for better readability
+            fontFamily: "'Roboto', sans-serif",
+            lineHeight: "1.7",
           }}>
             <h2 style={{
-              fontSize: "32px", 
-              fontWeight: "700", // Bold header
-              color: "#1e3a8a", // Azure blue for header text
-              marginBottom: "20px", // Add space below the heading
+              fontSize: "32px",
+              fontWeight: "700",
+              color: "#1e3a8a",
+              marginBottom: "20px",
             }}>
               {view === "overview" ? "Overview" : "Summary"}
             </h2>
             <p style={{
-              fontSize: "16px", 
-              fontWeight: "400", 
-              color: "#4b5563",  // Darker grey for text
-              whiteSpace: "pre-wrap", 
+              fontSize: "16px",
+              fontWeight: "400",
+              color: "#4b5563",
+              whiteSpace: "pre-wrap",
               wordWrap: "break-word",
             }}>
               {text}
@@ -386,7 +358,6 @@ export default function FlowChart() {
           </div>
         )}
 
-        {/* Node Details */}
         {selectedNode && !guided && (
           <div
             style={{

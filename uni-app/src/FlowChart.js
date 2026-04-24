@@ -4,60 +4,91 @@ import ReactFlow, {
   ReactFlowProvider,
   Background,
   Controls,
+  MarkerType,
   useNodesState,
   useEdgesState,
-  MarkerType,
 } from "reactflow";
-import "reactflow/dist/style.css"; // ReactFlow's default styles
+import "reactflow/dist/style.css";
+import { FaTools, FaCloud } from "react-icons/fa"; // Example colorful icons
+import { IoMdAnalytics } from "react-icons/io";
+import { MdSettingsInputComponent } from "react-icons/md"; // For DevOps type
 
-// Styling for node types
-const typeColors = {
-  process: "#3b82f6",  // Blue
-  devops: "#8b5cf6",   // Purple
-  observability: "#f59e0b",  // Yellow
-  default: "#6b7280",  // Gray
-};
-
+// Constants and Styles
+const STORAGE_KEY = "azure-flow-layout";
 const GREEN = "#16a34a";
 const RED = "#dc2626";
 const GREY = "#6b7280";
 
-const STORAGE_KEY = "azure-flow-layout";
-
-// Custom styles for buttons and node highlighting
-const customButtonStyle = {
-  backgroundColor: "#0078d4", // Azure blue
-  color: "white",
-  border: "none",
-  padding: "10px 20px",
-  borderRadius: "5px",
-  cursor: "pointer",
-  fontSize: "14px",
-  transition: "background-color 0.3s",
+// Colors for node types
+const typeColors = {
+  process: "#3b82f6", // Azure blue for process
+  devops: "#8b5cf6",  // Purple for DevOps
+  observability: "#f59e0b", // Yellow for Observability
+  default: "#6b7280",  // Grey for default
 };
 
+// Styling for the custom button
+const customButtonStyle = {
+  backgroundColor: "#0078d4", // Azure Blue
+  color: "white",
+  border: "none",
+  padding: "12px 24px",
+  borderRadius: "8px",
+  fontSize: "16px",
+  cursor: "pointer",
+  transition: "background-color 0.3s",
+  marginBottom: "10px",
+};
+
+// Map each node type to an icon
+const getNodeIcon = (type) => {
+  const iconStyle = { fontSize: "24px", marginRight: "10px" };  // Adjust the font size here
+  switch (type) {
+    case "process":
+      return <FaTools style={{ ...iconStyle, color: "#3b82f6" }} />;
+    case "devops":
+      return <MdSettingsInputComponent style={{ ...iconStyle, color: "#8b5cf6" }} />;
+    case "observability":
+      return <IoMdAnalytics style={{ ...iconStyle, color: "#f59e0b" }} />;
+    default:
+      return <FaCloud style={{ ...iconStyle, color: "#6b7280" }} />;
+  }
+};
+
+const NodeLabel = ({ icon, label }) => (
+  <div style={{ display: 'flex', alignItems: 'center' }}>
+    {icon && <div style={{ marginRight: '10px' }}>{icon}</div>}
+    <div>{label}</div>
+  </div>
+);
+
 // Create node from CSV data
-const makeNode = (row, saved, highlightedNodeId, guided) => ({
+const makeNode = (row, saved, highlightedNodeId, guided, current) => ({
   id: String(row.id),
   position: saved[row.id] || { x: Math.random() * 600, y: Math.random() * 400 },
   data: {
-    label: row.label,
+    label: <NodeLabel icon={getNodeIcon(row.type)} label={row.label} />,
     desc: row.desc,
     type: row.type,
     next: row.next,
   },
   style: {
-    width: 220,
-    padding: 15,
+    width: 250,
+    padding: 20,
     borderRadius: 12,
     background: "#fff",
-    border: `2px solid ${highlightedNodeId === row.id ? "#ff9900" : typeColors[row.type] || typeColors.default}`,
+    border: `2px solid ${highlightedNodeId === row.id || (guided && current === row.id) ? "#00aaff" : typeColors[row.type] || typeColors.default}`,
     fontSize: 14,
+    fontWeight: "500",
+    color: "#333",
     cursor: "pointer",
-    boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
-    opacity: !guided || highlightedNodeId === row.id ? 1 : 0.3, // All nodes visible when not in guided mode
-    transition: "all 0.3s ease",
+    boxShadow: highlightedNodeId === row.id || (guided && current === row.id)
+      ? "0 6px 12px rgba(0, 170, 255, 0.3)" // Highlighted nodes
+      : "0 3px 6px rgba(0, 0, 0, 0.1)", // Normal nodes
+    opacity: !guided || highlightedNodeId === row.id || (guided && current === row.id) ? 1 : 0.4, // Reduce opacity of non-guided nodes
+    transition: "all 0.3s ease",  // Smooth transition for hover/active state
   },
+  draggable: true,  // Allow dragging for better flow manipulation
 });
 
 export default function FlowChart() {
@@ -66,10 +97,11 @@ export default function FlowChart() {
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [nodeMap, setNodeMap] = useState({});
   const [selectedNode, setSelectedNode] = useState(null);
+  const [highlightedNodeId, setHighlightedNodeId] = useState(null); // Track highlighted node
   const [guided, setGuided] = useState(false);
   const [current, setCurrent] = useState("1");
-  const [highlightedNodeId, setHighlightedNodeId] = useState(null); // Track highlighted node
-  const [text, setText] = useState(""); // Declare text state to store overview/summary data
+  const [text, setText] = useState("");
+  const isMobile = window.innerWidth < 768;
 
   // Load CSV data for nodes and edges
   useEffect(() => {
@@ -87,8 +119,8 @@ export default function FlowChart() {
           if (!row.id) return;
 
           map[row.id] = row;
-          tempNodes.push(makeNode(row, saved, highlightedNodeId, guided)); // Pass guided mode and highlighted node ID
-          
+          tempNodes.push(makeNode(row, saved, highlightedNodeId, guided, current));
+
           if (row.next) {
             row.next.split(";").forEach((t) => {
               if (!t) return;
@@ -116,9 +148,9 @@ export default function FlowChart() {
         setEdges(tempEdges);
       },
     });
-  }, [setNodes, setEdges, highlightedNodeId, guided]);
+  }, [setNodes, setEdges, highlightedNodeId, guided, current]);
 
-  // Load text data for overview and summary views
+  // Load text data (overview/summary)
   useEffect(() => {
     if (view === "overview") {
       fetch("/data/overview.txt").then((r) => r.text()).then(setText);
@@ -131,6 +163,7 @@ export default function FlowChart() {
   const onNodeClick = (_, node) => {
     if (guided) return;
     setSelectedNode(node.data);
+    setHighlightedNodeId(node.id);  // Highlight the clicked node
   };
 
   // Start and Exit Guided Mode
@@ -138,51 +171,59 @@ export default function FlowChart() {
     setGuided(true);
     setCurrent(id);
     setSelectedNode(null);
-    setHighlightedNodeId(id); // Highlight the first node
   };
 
   const exitGuided = () => {
     setGuided(false);
     setCurrent("1");
-    setHighlightedNodeId(null); // Reset highlighted node
   };
 
   const next = () => {
     const node = nodeMap[current];
     if (!node?.next) return;
-    const nextId = node.next.split(";")[0];
-    setCurrent(nextId);
-    setHighlightedNodeId(nextId); // Highlight the next node
+    setCurrent(node.next.split(";")[0]);
   };
 
-  const choose = (id) => {
-    setCurrent(id);
-    setHighlightedNodeId(id); // Highlight the selected node
-  };
+  const choose = (id) => setCurrent(id);
 
   const active = nodeMap[current];
 
+  // Render Flowchart
   return (
     <div style={{ display: "flex", height: "100vh" }}>
       {/* Sidebar */}
       <div
         style={{
-          width: 220,
-          padding: 20,
-          borderRight: "1px solid #e5e7eb",
-          background: "#fafafa",
+          width: 250,
+          padding: "20px 15px",
+          backgroundColor: "#1e3a8a", // Azure blue background
+          color: "#fff", // White text
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "flex-start",
+          height: "100vh",
+          boxShadow: "2px 0px 10px rgba(0, 0, 0, 0.1)", // Subtle shadow for depth
+          position: "fixed",
         }}
       >
-        <h3>Navigation</h3>
+        <h2 style={{ fontSize: "20px", marginBottom: "20px" }}>Azure Flow</h2>
         <button onClick={() => setView("flow")} style={customButtonStyle}>Flowchart</button>
-        <br />
+        {/* Start or Exit Guided Mode Button nested under Flowchart button */}
+        {view === "flow" && (
+          <div style={{ marginTop: "10px", marginBottom: "20px" }}>
+            {!guided ? (
+              <button onClick={() => startGuided("1")} style={customButtonStyle}>Start Guided Mode</button>
+            ) : (
+              <button onClick={exitGuided} style={customButtonStyle}>Exit Guided Mode</button>
+            )}
+          </div>
+        )}
         <button onClick={() => setView("overview")} style={customButtonStyle}>Overview</button>
-        <br />
         <button onClick={() => setView("summary")} style={customButtonStyle}>Summary</button>
       </div>
 
       {/* Main content */}
-      <div style={{ flex: 1, position: "relative" }}>
+      <div style={{ marginLeft: 250, flex: 1, padding: "20px" }}>
         {view === "flow" && (
           <ReactFlowProvider>
             <ReactFlow
@@ -196,25 +237,15 @@ export default function FlowChart() {
               <Background />
               <Controls />
 
-              {/* GUIDED BUTTON */}
-              <div style={{ position: "absolute", top: 10, left: 10, zIndex: 10 }}>
-                {!guided ? (
-                  <button onClick={() => startGuided("1")} style={customButtonStyle}>Start Guided Mode</button>
-                ) : (
-                  <button onClick={exitGuided} style={customButtonStyle}>Exit Guided Mode</button>
-                )}
-              </div>
-
               {/* GUIDED PANEL */}
               {guided && active && (
                 <div
                   style={{
                     position: "absolute",
-                    bottom: "20%",
-                    left: "20px",
-                    width: "280px",
+                    top: "80px",  // Position below Flowchart button
+                    left: "20px",  // Keep it left-aligned
                     background: "#fff",
-                    padding: "12px",
+                    padding: "20px",
                     borderRadius: "10px",
                     boxShadow: "0 10px 25px rgba(0,0,0,0.15)",
                     zIndex: 20,
@@ -223,28 +254,30 @@ export default function FlowChart() {
                   <b>{active.label}</b>
                   <p style={{ fontSize: 12 }}>{active.desc}</p>
 
-                  {current === "5" && (
-                    <>
-                      <button onClick={() => choose("6")} style={customButtonStyle}>Bicep Build</button>
-                      <button onClick={() => choose("7")} style={customButtonStyle}>Ansible Build</button>
-                    </>
-                  )}
+                  {/* Show choices only if there are multiple next options */}
+                  {active.next && active.next.split(";").length > 1 && 
+                    active.next.split(";").map((choice) => {
+                      // Exclude Grafana node (ID 22) if current node is Defender for Cloud (ID 15)
+                      if (current === "15" && choice === "22") {
+                        return null; // Don't render the button for Grafana
+                      }
+                      // Exclude Next button for GitHub node (ID 14)
+                      if (current === "14") {
+                        return null; // Don't render the button for GitHub
+                      }
+                      return (
+                        <button
+                          key={choice}
+                          onClick={() => choose(choice)}
+                          style={customButtonStyle}
+                        >
+                          Go to {nodeMap[choice]?.label || choice}
+                        </button>
+                      );
+                    })}
 
-                  {["6", "7"].includes(current) && (
-                    <>
-                      <button onClick={() => choose("8")} style={customButtonStyle}>Azure Cloud</button>
-                      <button onClick={() => choose("9")} style={customButtonStyle}>Azure Arc</button>
-                    </>
-                  )}
-
-                  {current === "15" && (
-                    <>
-                      <button onClick={() => choose("16")} style={customButtonStyle}>Success</button>
-                      <button onClick={() => choose("17")} style={customButtonStyle}>Failure</button>
-                    </>
-                  )}
-
-                  {!["5", "6", "7", "15"].includes(current) && (
+                  {/* Remove Next button for specific nodes */}
+                  {current !== "15" && current !== "14" && (
                     <button onClick={next} style={customButtonStyle}>Next →</button>
                   )}
                 </div>
@@ -255,41 +288,9 @@ export default function FlowChart() {
 
         {/* Overview or Summary */}
         {(view === "overview" || view === "summary") && (
-          <div
-            style={{
-              padding: "20px 40px",
-              backgroundColor: "#f5f7f9",
-              height: "100%",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              flexDirection: "column",
-            }}
-          >
-            <div
-              style={{
-                maxWidth: "900px",
-                width: "100%",
-                backgroundColor: "#fff",
-                padding: "30px",
-                borderRadius: "10px",
-                boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
-              }}
-            >
-              <h2 style={{ fontSize: "28px", marginBottom: "20px", color: "#333" }}>
-                {view === "overview" ? "Overview" : "Summary"}
-              </h2>
-              <p
-                style={{
-                  fontSize: "16px",
-                  lineHeight: "1.6",
-                  color: "#555",
-                  whiteSpace: "pre-wrap", // Preserve text formatting
-                }}
-              >
-                {text}
-              </p>
-            </div>
+          <div style={{ padding: 20 }}>
+            <h2>{view}</h2>
+            <pre>{text}</pre>
           </div>
         )}
 

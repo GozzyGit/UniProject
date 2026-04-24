@@ -112,9 +112,12 @@ export default function FlowChart() {
   const [current, setCurrent] = useState("1");
   const [text, setText] = useState("");
 
+  // Base URL for assets (adjust for deployment environment)
+  const baseUrl = process.env.PUBLIC_URL || '';
+
   // Load CSV data for nodes and edges
   useEffect(() => {
-    Papa.parse("/UniProject/uni-app/public/data/data.csv", {
+    Papa.parse(`${baseUrl}/data/data.csv`, {
       download: true,
       header: true,
       skipEmptyLines: true,
@@ -161,7 +164,7 @@ export default function FlowChart() {
 
   // Load text data (overview/summary)
   useEffect(() => {
-    const filePath = view === "overview" ? "/UniProject/uni-app/public/data/overview.txt" : "/UniProject/uni-app/public/data/summary.txt";
+    const filePath = view === "overview" ? `${baseUrl}/data/overview.txt` : `${baseUrl}/data/summary.txt`;
 
     fetch(filePath)
       .then((response) => response.text())

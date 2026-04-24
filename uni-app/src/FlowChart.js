@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Papa from "papaparse";
 import ReactFlow, {
   ReactFlowProvider,
@@ -75,7 +75,7 @@ const NodeLabel = ({ icon, label }) => (
 // Create node from CSV data
 const makeNode = (row, saved, highlightedNodeId, guided, current) => ({
   id: String(row.id),
-  position: saved[row.id] || { x: Math.random() * 600, y: Math.random() * 400 },
+  position: saved[row.id] || { x: Math.random() * 600, y: Math.random() * 400 },  // Maintain saved position or generate random
   data: {
     label: <NodeLabel icon={getNodeIcon(row.type)} label={row.label} />,
     desc: row.desc,
@@ -86,16 +86,16 @@ const makeNode = (row, saved, highlightedNodeId, guided, current) => ({
     width: 250,
     padding: 20,
     borderRadius: 12,
-    background: "#fff",
+    background: typeColors[row.type] || typeColors.default,  // Set background color based on node type
     border: `2px solid ${highlightedNodeId === row.id || (guided && current === row.id) ? "#00aaff" : typeColors[row.type] || typeColors.default}`,
     fontSize: 14,
     fontWeight: "500",
-    color: "#333",
+    color: "white",  // Set text color to white
     cursor: "pointer",
     boxShadow: highlightedNodeId === row.id || (guided && current === row.id)
-      ? "0 6px 12px rgba(0, 170, 255, 0.3)" // Highlighted nodes
-      : "0 3px 6px rgba(0, 0, 0, 0.1)", // Normal nodes
-    opacity: !guided || highlightedNodeId === row.id || (guided && current === row.id) ? 1 : 0.4, // Reduce opacity of non-guided nodes
+      ? "0 6px 12px rgba(0, 170, 255, 0.3)"  // Highlighted nodes
+      : "0 3px 6px rgba(0, 0, 0, 0.1)",  // Normal nodes
+    opacity: !guided || highlightedNodeId === row.id || (guided && current === row.id) ? 1 : 0.4,  // Reduce opacity of non-guided nodes
     transition: "all 0.3s ease",  // Smooth transition for hover/active state
   },
   draggable: true,  // Allow dragging for better flow manipulation
@@ -111,6 +111,9 @@ export default function FlowChart() {
   const [guided, setGuided] = useState(false);
   const [current, setCurrent] = useState("1");
   const [text, setText] = useState("");
+
+  // Ref to the guided popup
+  const popupRef = useRef(null);
 
   // Base URL for assets (adjust for deployment environment)
   const baseUrl = process.env.PUBLIC_URL || '/UniProject'; // Use '/UniProject' for GitHub Pages
@@ -202,6 +205,23 @@ export default function FlowChart() {
 
   const active = nodeMap[current];
 
+  // Detect clicks outside of the popup to exit guided mode
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (popupRef.current && !popupRef.current.contains(event.target)) {
+        exitGuided(); // Exit guided mode if clicked outside
+      }
+    };
+
+    // Add event listener for clicks outside the popup
+    document.addEventListener("mousedown", handleClickOutside);
+
+    // Clean up the event listener on component unmount
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   // Render Flowchart
   return (
     <div style={{ display: "flex", height: "100vh" }}>
@@ -269,6 +289,7 @@ export default function FlowChart() {
         {/* Guided Flowchart Panel */}
         {guided && active && (
           <div
+            ref={popupRef}
             style={{
               position: "absolute",
               bottom: "20%",

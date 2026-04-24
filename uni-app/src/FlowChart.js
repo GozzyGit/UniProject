@@ -180,13 +180,6 @@ export default function FlowChart() {
     setHighlightedNodeId(node.id);  // Highlight the clicked node
   };
 
-  // Save node positions in local storage when they are changed
-  const onNodeDragStop = (event, node) => {
-    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
-    saved[node.id] = node.position;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
-  };
-
   // Start and Exit Guided Mode
   const startGuided = (id = "1") => {
     setGuided(true);
@@ -265,7 +258,6 @@ export default function FlowChart() {
               onNodesChange={onNodesChange}
               onEdgesChange={onEdgesChange}
               onNodeClick={onNodeClick}
-              onNodeDragStop={onNodeDragStop} // Handle drag stop to save node positions
               fitView
             >
               <Background />

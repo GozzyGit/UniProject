@@ -114,7 +114,7 @@ export default function FlowChart() {
 
   // Load CSV data for nodes and edges
   useEffect(() => {
-    Papa.parse("/data/data.csv", {
+    Papa.parse("/UniProject/uni-app/public/data/data.csv", {
       download: true,
       header: true,
       skipEmptyLines: true,
@@ -161,12 +161,14 @@ export default function FlowChart() {
 
   // Load text data (overview/summary)
   useEffect(() => {
-    if (view === "overview") {
-      fetch("/data/overview.txt").then((r) => r.text()).then(setText);
-    }
-    if (view === "summary") {
-      fetch("/data/summary.txt").then((r) => r.text()).then(setText);
-    }
+    const filePath = view === "overview" ? "/UniProject/uni-app/public/data/overview.txt" : "/UniProject/uni-app/public/data/summary.txt";
+
+    fetch(filePath)
+      .then((response) => response.text())
+      .then(setText)
+      .catch((error) => {
+        console.error("Error fetching text file:", error);
+      });
   }, [view]);
 
   const onNodeClick = (_, node) => {

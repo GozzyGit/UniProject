@@ -243,22 +243,24 @@ export default function FlowChart() {
         <h2 style={{ fontSize: "20px", marginBottom: "20px" }}>Azure Flow</h2>
 
         {/* Flowchart Buttons */}
-        <button onClick={() => setView("flow")} style={customButtonStyle}>
-          Flowchart
-        </button>
         <button onClick={() => setView("overview")} style={customButtonStyle}>
           Overview
         </button>
-        <button onClick={() => setView("summary")} style={customButtonStyle}>
-          Summary
+        <button onClick={() => setView("flow")} style={customButtonStyle}>
+          Flowchart
         </button>
 
-        {/* Guided Mode Button */}
-        {!guided && (
+        {/* Show "Start Guided Mode" Button only when Flowchart view is active and Guided Mode is not active */}
+        {view === "flow" && !guided && (
           <button onClick={() => startGuided()} style={customButtonStyle}>
             Start Guided Mode
           </button>
         )}
+
+        {/* Show "Summary" Button */}
+        <button onClick={() => setView("summary")} style={customButtonStyle}>
+          Summary
+        </button>
 
         {/* Exit Guided Mode Button */}
         {guided && (
@@ -319,9 +321,11 @@ export default function FlowChart() {
                 );
               })}
 
-            {/* Remove "Next" Button from Defender for Cloud Node */}
-            {active.label.toLowerCase() !== "defender for cloud" && !["github", "bicep build", "ansible build"].includes(active.label.toLowerCase()) && (
-              <button onClick={next} style={customButtonStyle}>Next →</button>
+            {/* Remove the "Next" button for nodes 5, 6, 7, and 15 */}
+            {active.id !== "5" && active.id !== "6" && active.id !== "7" && active.id !== "15" && (
+              <button onClick={next} style={customButtonStyle}>
+                Next →
+              </button>
             )}
 
             {/* Exit Guided Mode Button */}

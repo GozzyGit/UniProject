@@ -113,7 +113,7 @@ export default function FlowChart() {
   const [text, setText] = useState("");
 
   // Base URL for assets (adjust for deployment environment)
-  const baseUrl = process.env.PUBLIC_URL || '';
+  const baseUrl = process.env.PUBLIC_URL || '/UniProject'; // Use '/UniProject' for GitHub Pages
 
   // Load CSV data for nodes and edges
   useEffect(() => {
@@ -178,6 +178,13 @@ export default function FlowChart() {
     if (guided) return;
     setSelectedNode(node.data);
     setHighlightedNodeId(node.id);  // Highlight the clicked node
+  };
+
+  // Save node positions in local storage when they are changed
+  const onNodeDragStop = (event, node) => {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+    saved[node.id] = node.position;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
   };
 
   // Start and Exit Guided Mode
@@ -258,6 +265,7 @@ export default function FlowChart() {
               onNodesChange={onNodesChange}
               onEdgesChange={onEdgesChange}
               onNodeClick={onNodeClick}
+              onNodeDragStop={onNodeDragStop} // Handle drag stop to save node positions
               fitView
             >
               <Background />

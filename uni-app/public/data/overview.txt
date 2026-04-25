@@ -1,3 +1,5 @@
 The application models a complete delivery lifecycle, from change control and code development through CI/CD pipelines, infrastructure provisioning, deployment, and observability. It includes both cloud and on-prem components, showing how systems integrate across hybrid environments using Azure services.
 
+To create this, I started by using npm on my Ubuntu system to set up a React app. I then integrated GitHub for version control, working with a main branch for ongoing development. Once the app was ready for deployment, I created a gh-pages branch to publish the app directly to GitHub Pages, enabling seamless deployment of the application.
+
 The flow is data-driven, meaning the entire diagram is generated from a CSV file that defines nodes, relationships, and process metadata.

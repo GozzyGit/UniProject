@@ -112,7 +112,7 @@ const makeNode = (row, saved, highlightedNodeId, guided, current) => {
       transition: "all 0.3s ease",
       backgroundColor: `${backgroundColor}33`, // Set transparent background
     },
-    draggable: true,
+    draggable: false,
   };
 };
 

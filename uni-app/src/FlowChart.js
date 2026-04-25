@@ -100,7 +100,7 @@ const makeNode = (row, saved, highlightedNodeId, guided, current) => {
       width: 250,
       padding: 20,
       borderRadius: 12,
-      border: `4px solid ${highlightedNodeId === row.id || (guided && current === row.id) ? "#00aaff" : typeColors[row.type] || typeColors.default}`,
+      border: `2px solid ${highlightedNodeId === row.id || (guided && current === row.id) ? "#00aaff" : typeColors[row.type] || typeColors.default}`,
       fontSize: 20,
       fontWeight: "500",
       color: getTextColor(row.type),

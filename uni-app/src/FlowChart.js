@@ -200,11 +200,11 @@ export default function FlowChart() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
   };
 
-  const onNodeClick = (_, node) => {
-    if (guided) return;
-    setSelectedNode(node.data);
-    setHighlightedNodeId(node.id);
-  };
+  // const onNodeClick = (_, node) => {
+  //   if (guided) return;
+  //   setSelectedNode(node.data);
+  //   setHighlightedNodeId(node.id);
+  // };
 
   // Start and Exit Guided Mode
   const startGuided = (id = "1") => {
@@ -292,7 +292,7 @@ export default function FlowChart() {
               edges={edges}
               onNodesChange={onNodesChange}
               onEdgesChange={onEdgesChange}
-              onNodeClick={onNodeClick}
+              // onNodeClick={onNodeClick}
               onNodeDragStop={onNodeDragStop} // Capture the drag stop
               fitView
             >

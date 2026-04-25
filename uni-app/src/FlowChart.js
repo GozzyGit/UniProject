@@ -106,7 +106,7 @@ const makeNode = (row, saved, highlightedNodeId, guided, current) => ({
     opacity: !guided || highlightedNodeId === row.id || (guided && current === row.id) ? 1 : 0.4,
     transition: "all 0.3s ease",
   },
-  draggable: true,
+  draggable: false,
 });
 
 export default function FlowChart() {

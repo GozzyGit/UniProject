@@ -7,6 +7,7 @@ import ReactFlow, {
   MarkerType,
   useNodesState,
   useEdgesState,
+  useReactFlow,
 } from "reactflow";
 import "reactflow/dist/style.css";
 import { FaTools, FaCloud } from "react-icons/fa";
@@ -182,6 +183,23 @@ export default function FlowChart() {
       });
   }, [view, baseUrl]);
 
+  // Node drag and drop handling
+  const onNodeDragStop = (event, node) => {
+    const updatedNodes = nodes.map((n) => {
+      if (n.id === node.id) {
+        n.position = { x: node.position.x, y: node.position.y };
+      }
+      return n;
+    });
+
+    setNodes(updatedNodes);
+
+    // Save the updated position to localStorage
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+    saved[node.id] = node.position;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
+  };
+
   const onNodeClick = (_, node) => {
     if (guided) return;
     setSelectedNode(node.data);
@@ -275,6 +293,7 @@ export default function FlowChart() {
               onNodesChange={onNodesChange}
               onEdgesChange={onEdgesChange}
               onNodeClick={onNodeClick}
+              onNodeDragStop={onNodeDragStop} // Capture the drag stop
               fitView
             >
               <Background />

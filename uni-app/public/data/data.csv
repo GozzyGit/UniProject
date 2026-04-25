@@ -4,8 +4,8 @@ id,label,type,next,desc,
 3,Code Change,devops,4,Defines infra and config changes using Bicep and Ansible with DEV/PROD parameters so the same code is used for both environments,     
 4,Code Testing,devops,5,Validates changes before deployment,
 5,GitHub/AzureDevops,devops,6;7,Version control system for storing code and files with workflows for bicep (build) and ansible (config)    
-6,Bicep Build,bicep,8;9,CI workflow that builds and deploys Bicep from main branch
-7,Ansible Build,ansible,8;9,CI workflow that runs Ansible from main branch updates
+6,Bicep Build,bicep,8;9,CI\CD workflow that builds and deploys Bicep from main branch
+7,Ansible Build,ansible,8;9,CI\CD workflow that runs Ansible from main branch updates
 8,Azure Cloud Resources,azure cloud,12,Azure-hosted infrastructure resources
 9,Azure Arc,azure cloud,10,Extends Azure management to hybrid and on-prem environments
 10,Azure HCI,on prem,11,Hyperconverged infrastructure platform
@@ -16,7 +16,7 @@ id,label,type,next,desc,
 15,Defender for Cloud,observability,16;17;22,Provides security posture management and vulnerability detection
 16,Success,endprocess,21,Indicates successful deployment and updates change control
 17,Failure,endprocess,20,Triggers rollback and failure handling workflow
-20,Investigation/Fix/deploy,endprocess,3,Diagnoses issues and redeploys fixes
+20,Investigation/Fix/deploy,endprocess,3,Failure triggers a rollback and investigation to diagnose issues. If a fix is required, it will be redeployed.
 21,Mark Change as completed,endprocess,1,Closes the change request
 22,Grafana Dashboard,observability,,Visualizes metrics and monitoring data
 

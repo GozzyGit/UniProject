@@ -314,6 +314,9 @@ export default function FlowChart() {
               borderRadius: "10px",
               boxShadow: "0 10px 25px rgba(0,0,0,0.15)",
               zIndex: 20,
+              width: "300px", // Limit the width to prevent it from expanding too much
+              maxHeight: "60vh", // Max height so it doesn't take over the screen
+              overflowY: "auto", // Allows scrolling if text is too long
             }}
           >
             <b>{active.label}</b>

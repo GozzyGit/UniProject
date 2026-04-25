@@ -1,7 +1,7 @@
 id,label,type,next,desc,
 1,Change Control,process,2,Manages and tracks system or project changes
 2,Approval,process,3,Gate that approves changes before production release
-3,Code Change,devops,4,Defines infra and config changes using Bicep and Ansible with DEV/PROD parameters so the same code is used for both environments     
+3,Code Change,devops,4,Defines infra and config changes using Bicep and Ansible with DEV/PROD parameters so the same code is used for both environments,     
 4,Code Testing,devops,5,Validates changes before deployment,
 5,GitHub/AzureDevops,devops,6;7,Version control system for storing code and files with workflows for bicep (build) and ansible (config)    
 6,Bicep Build,bicep,8;9,CI workflow that builds and deploys Bicep from main branch
@@ -10,7 +10,7 @@ id,label,type,next,desc,
 9,Azure Arc,azure cloud,10,Extends Azure management to hybrid and on-prem environments
 10,Azure HCI,on prem,11,Hyperconverged infrastructure platform
 11,OnPrem Resources,onprem,12,On-site infrastructure systems
-12,Azure Monitor/Alert,observability,13,Collects and analyzes logs,metrics and triggers alerts
+12,Azure Monitor/Alert,observability,13,"Collects and analyzes logs,metrics and triggers alerts"
 13,Azure Sentinel,observability,14,Cloud SIEM for threat detection and security monitoring
 14,Azure Policy,observability,15,Enforces compliance rules across Azure resources
 15,Defender for Cloud,observability,16;17;22,Provides security posture management and vulnerability detection

@@ -48,7 +48,6 @@ const descriptionStyle = {
   maxWidth: "700px",
 };
 
-// Node Icon & Label
 const getNodeIcon = (type) => {
   const iconStyle = { fontSize: "30px", marginRight: "10px" };
   switch (type) {
@@ -83,7 +82,6 @@ const getTextColor = (type) => {
   }
 };
 
-// makeNode function
 const makeNode = (row, saved, highlightedNodeId, guided, current) => ({
   id: String(row.id),
   position: saved[row.id] || { x: Math.random() * 600, y: Math.random() * 400 },
@@ -202,6 +200,12 @@ export default function FlowChart() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
   };
 
+  const onNodeClick = (_, node) => {
+    if (guided) return;
+    setSelectedNode(node.data);
+    setHighlightedNodeId(node.id);
+  };
+
   // Start and Exit Guided Mode
   const startGuided = (id = "1") => {
     setGuided(true);
@@ -258,7 +262,6 @@ export default function FlowChart() {
         <button onClick={() => setView("overview")} style={customButtonStyle}>
           Overview
         </button>
-
         <button onClick={() => setView("flow")} style={customButtonStyle}>
           Flowchart
         </button>
@@ -289,6 +292,7 @@ export default function FlowChart() {
               edges={edges}
               onNodesChange={onNodesChange}
               onEdgesChange={onEdgesChange}
+              onNodeClick={onNodeClick}
               onNodeDragStop={onNodeDragStop} // Capture the drag stop
               fitView
             >

@@ -7,7 +7,6 @@ import ReactFlow, {
   MarkerType,
   useNodesState,
   useEdgesState,
-  useReactFlow,
 } from "reactflow";
 import "reactflow/dist/style.css";
 import { FaTools, FaCloud } from "react-icons/fa";
@@ -21,10 +20,12 @@ const RED = "#dc2626";
 const GREY = "#6b7280";
 
 const typeColors = {
-  process: "#3b82f6",
-  devops: "#8b5cf6",
-  observability: "#f59e0b",
-  default: "#6b7280",
+  process: "#3b82f6", // Light blue
+  devops: "#8b5cf6",  // Light purple
+  "azure cloud": "#34d399", // Light green for azure cloud
+  "on prem": "#f97316", // Orange for on-prem
+  observability: "#f59e0b", // Yellow for observability
+  default: "#6b7280", // Default gray
 };
 
 const customButtonStyle = {
@@ -82,32 +83,38 @@ const getTextColor = (type) => {
   }
 };
 
-const makeNode = (row, saved, highlightedNodeId, guided, current) => ({
-  id: String(row.id),
-  position: saved[row.id] || { x: Math.random() * 600, y: Math.random() * 400 },
-  data: {
-    label: <NodeLabel icon={getNodeIcon(row.type)} label={row.label} />,
-    desc: row.desc,
-    type: row.type,
-    next: row.next,
-  },
-  style: {
-    width: 250,
-    padding: 20,
-    borderRadius: 12,
-    border: `4px solid ${highlightedNodeId === row.id || (guided && current === row.id) ? "#00aaff" : typeColors[row.type] || typeColors.default}`,
-    fontSize: 16,
-    fontWeight: "500",
-    color: getTextColor(row.type),
-    cursor: "pointer",
-    boxShadow: highlightedNodeId === row.id || (guided && current === row.id)
-      ? "0 6px 12px rgba(0, 170, 255, 0.3)"
-      : "0 3px 6px rgba(0, 0, 0, 0.1)",
-    opacity: !guided || highlightedNodeId === row.id || (guided && current === row.id) ? 1 : 0.4,
-    transition: "all 0.3s ease",
-  },
-  draggable: false,
-});
+const makeNode = (row, saved, highlightedNodeId, guided, current) => {
+  // Define the background color based on the node's type
+  const backgroundColor = typeColors[row.type] || typeColors.default;
+
+  return {
+    id: String(row.id),
+    position: saved[row.id] || { x: Math.random() * 600, y: Math.random() * 400 },
+    data: {
+      label: <NodeLabel icon={getNodeIcon(row.type)} label={row.label} />,
+      desc: row.desc,
+      type: row.type,
+      next: row.next,
+    },
+    style: {
+      width: 250,
+      padding: 20,
+      borderRadius: 12,
+      border: `4px solid ${highlightedNodeId === row.id || (guided && current === row.id) ? "#00aaff" : typeColors[row.type] || typeColors.default}`,
+      fontSize: 20,
+      fontWeight: "500",
+      color: getTextColor(row.type),
+      cursor: "pointer",
+      boxShadow: highlightedNodeId === row.id || (guided && current === row.id)
+        ? "0 6px 12px rgba(0, 170, 255, 0.3)"
+        : "0 3px 6px rgba(0, 0, 0, 0.1)",
+      opacity: !guided || highlightedNodeId === row.id || (guided && current === row.id) ? 1 : 0.4,
+      transition: "all 0.3s ease",
+      backgroundColor: `${backgroundColor}33`, // Set transparent background
+    },
+    draggable: false,
+  };
+};
 
 export default function FlowChart() {
   const [view, setView] = useState("flow");

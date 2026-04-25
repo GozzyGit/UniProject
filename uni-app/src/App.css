@@ -36,3 +36,9 @@
     transform: rotate(360deg);
   }
 }
+/* Set a global font for the entire website */
+body {
+  font-family: 'Roboto', sans-serif; /* Add your desired font here */
+  font-size: 16px; /* Default font size */
+  color: #333; /* Default text color */
+}

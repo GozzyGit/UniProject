@@ -19,6 +19,7 @@ const GREEN = "#16a34a";
 const RED = "#dc2626";
 const GREY = "#6b7280";
 
+
 const typeColors = {
   process: "#3b82f6", // Light blue
   devops: "#8b5cf6",  // Light purple
@@ -83,13 +84,16 @@ const getTextColor = (type) => {
   }
 };
 
-const makeNode = (row, saved, highlightedNodeId, guided, current) => {
+const makeNode = (row, layout, saved, highlightedNodeId, guided, current) => {
   // Define the background color based on the node's type
   const backgroundColor = typeColors[row.type] || typeColors.default;
 
   return {
     id: String(row.id),
-    position: saved[row.id] || { x: Math.random() * 600, y: Math.random() * 400 },
+    position:
+      layout?.[row.id] ||
+      saved?.[row.id] ||
+      { x: Math.random() * 400, y: Math.random() * 400 },
     data: {
       label: <NodeLabel icon={getNodeIcon(row.type)} label={row.label} />,
       desc: row.desc,
@@ -117,6 +121,7 @@ const makeNode = (row, saved, highlightedNodeId, guided, current) => {
 };
 
 export default function FlowChart() {
+  const [layout, setLayout] = useState({});
   const [view, setView] = useState("flow");
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
@@ -147,8 +152,9 @@ export default function FlowChart() {
           if (!row.id) return;
 
           map[row.id] = row;
-          tempNodes.push(makeNode(row, saved, highlightedNodeId, guided, current));
-
+          tempNodes.push(
+            makeNode(row, layout, saved, highlightedNodeId, guided, current)
+          );
           if (row.next) {
             row.next.split(";").forEach((t) => {
               if (!t) return;
@@ -176,8 +182,18 @@ export default function FlowChart() {
         setEdges(tempEdges);
       },
     });
-  }, [baseUrl, highlightedNodeId, guided, current, setNodes, setEdges]);
-
+  }, [baseUrl, highlightedNodeId, guided, current, setNodes, setEdges, layout]);
+      useEffect(() => {
+      fetch(`${baseUrl}/data/layout.json`)
+        .then((res) => res.json())
+        .then((data) => {
+          setLayout(data || {});
+        })
+        .catch((err) => {
+          console.error("Failed to load layout:", err);
+          setLayout({});
+        });
+    }, [baseUrl]);
   // Load text data (overview/summary)
   useEffect(() => {
     const filePath = view === "overview" ? `${baseUrl}/data/overview.txt` : `${baseUrl}/data/summary.txt`;

@@ -92,7 +92,7 @@ const makeNode = (row, layout, saved, highlightedNodeId, guided, current) => {
     position:
       layout?.[row.id] ||
       saved?.[row.id] ||
-      { x: Math.random() * 400, y: Math.random() * 400 },
+      { x: 0, y: 0 },
     data: {
       label: <NodeLabel icon={getNodeIcon(row.type)} label={row.label} />,
       desc: row.desc,
@@ -133,11 +133,12 @@ export default function FlowChart() {
 
   const flowRef = useRef(null);
   const popupRef = useRef(null);
-
+  const [ready, setReady] = useState(false);
   const baseUrl = process.env.PUBLIC_URL || '/UniProject';
 
   // Load CSV data for nodes and edges
   useEffect(() => {
+    if (!layout || Object.keys(layout).length === 0) return;
     Papa.parse(`${baseUrl}/data/data.csv`, {
       download: true,
       header: true,
@@ -180,11 +181,12 @@ export default function FlowChart() {
         setNodeMap(map);
         setNodes(tempNodes);
         setEdges(tempEdges);
+        setReady(true);
       },
     });
   }, [baseUrl, highlightedNodeId, guided, current, setNodes, setEdges, layout]);
       useEffect(() => {
-      fetch(`${baseUrl}/data/layout.json`)
+      fetch(`${baseUrl}/data/layout.json?v=${Date.now()}`)
         .then((res) => res.json())
         .then((data) => {
           setLayout(data || {});
@@ -194,14 +196,7 @@ export default function FlowChart() {
           setLayout({});
         });
     }, [baseUrl]);
-
-    useEffect(() => {
-      if (flowRef.current && nodes.length > 0) {
-        setTimeout(() => {
-          flowRef.current.fitView({ padding: 0.2 });
-        }, 50); // small delay ensures nodes are rendered
-      }
-    }, [nodes]);
+    
 
   // Load text data (overview/summary)
   useEffect(() => {
@@ -317,25 +312,26 @@ export default function FlowChart() {
 
       {/* Main content */}
       <div style={{ marginLeft: 250, flex: 1, padding: "20px" }}>
-        {view === "flow" && (
+        {view === "flow" && ready && (
           <ReactFlowProvider>
-          <ReactFlow
-            nodes={nodes}
-            edges={edges}
-            onNodesChange={onNodesChange}
-            onEdgesChange={onEdgesChange}
-            onNodeClick={onNodeClick}
-            onNodeDragStop={onNodeDragStop}
-            onInit={(instance) => {
-              flowRef.current = instance;
-            }}
+            <ReactFlow
+              nodes={nodes}
+              edges={edges}
+              onNodesChange={onNodesChange}
+              onEdgesChange={onEdgesChange}
+              onNodeClick={onNodeClick}
+              onNodeDragStop={onNodeDragStop}
+              onInit={(instance) => {
+                flowRef.current = instance;
+                instance.fitView({ padding: 0.2 });
+              }}
+              fitView
             >
               <Background />
               <Controls />
             </ReactFlow>
           </ReactFlowProvider>
         )}
-
         {guided && active && (
           <div
             ref={popupRef}

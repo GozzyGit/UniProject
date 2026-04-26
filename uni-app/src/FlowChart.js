@@ -19,7 +19,6 @@ const GREEN = "#16a34a";
 const RED = "#dc2626";
 const GREY = "#6b7280";
 
-
 const typeColors = {
   process: "#3b82f6", // Light blue
   devops: "#8b5cf6",  // Light purple
@@ -132,6 +131,7 @@ export default function FlowChart() {
   const [current, setCurrent] = useState("1");
   const [text, setText] = useState("");
 
+  const flowRef = useRef(null);
   const popupRef = useRef(null);
 
   const baseUrl = process.env.PUBLIC_URL || '/UniProject';
@@ -194,6 +194,15 @@ export default function FlowChart() {
           setLayout({});
         });
     }, [baseUrl]);
+
+    useEffect(() => {
+      if (flowRef.current && nodes.length > 0) {
+        setTimeout(() => {
+          flowRef.current.fitView({ padding: 0.2 });
+        }, 50); // small delay ensures nodes are rendered
+      }
+    }, [nodes]);
+
   // Load text data (overview/summary)
   useEffect(() => {
     const filePath = view === "overview" ? `${baseUrl}/data/overview.txt` : `${baseUrl}/data/summary.txt`;
@@ -310,14 +319,16 @@ export default function FlowChart() {
       <div style={{ marginLeft: 250, flex: 1, padding: "20px" }}>
         {view === "flow" && (
           <ReactFlowProvider>
-            <ReactFlow
-              nodes={nodes}
-              edges={edges}
-              onNodesChange={onNodesChange}
-              onEdgesChange={onEdgesChange}
-              onNodeClick={onNodeClick}
-              onNodeDragStop={onNodeDragStop} // Capture the drag stop
-              fitView
+          <ReactFlow
+            nodes={nodes}
+            edges={edges}
+            onNodesChange={onNodesChange}
+            onEdgesChange={onEdgesChange}
+            onNodeClick={onNodeClick}
+            onNodeDragStop={onNodeDragStop}
+            onInit={(instance) => {
+              flowRef.current = instance;
+            }}
             >
               <Background />
               <Controls />
